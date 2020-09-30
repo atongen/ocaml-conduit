@@ -96,6 +96,7 @@ type server = [
   | `TLS of server_tls_config
   | `OpenSSL of server_tls_config
   | `TLS_native of server_tls_config
+  | `TLS_dynamic of (int * (string -> (Tls.Config.certchain, string) result))
   | `TCP of tcp_config
   | `Unix_domain_socket of [ `File of string ]
   | `Vchan_direct of int * string
