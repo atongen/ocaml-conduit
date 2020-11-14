@@ -41,10 +41,10 @@ end
 
 module Server = struct
 
-  let init' ?backlog ?stop ?timeout tls sa callback =
+  let init' ?backlog ?stop ?timeout ?on_exn tls sa callback =
     sa
     |> Conduit_lwt_server.listen ?backlog
-    >>= Conduit_lwt_server.init ?stop (fun (fd, addr) ->
+    >>= Conduit_lwt_server.init ?stop ?on_exn (fun (fd, addr) ->
         Lwt.try_bind
           (fun () -> Tls_lwt.Unix.server_of_fd tls fd)
           (fun t ->

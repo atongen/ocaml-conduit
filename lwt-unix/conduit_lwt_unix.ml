@@ -334,12 +334,12 @@ let serve_with_tls_native ?timeout ?stop ~ctx ~certfile ~keyfile
     ~certfile ~keyfile ?timeout ?stop sockaddr
     (fun addr fd ic oc -> callback (flow_of_fd fd addr) ic oc)
 
-let serve_with_tls_dynamic ?timeout ?stop ~ctx ~f ~port callback =
+let serve_with_tls_dynamic ?timeout ?stop ~on_exn ~ctx ~f ~port callback =
   let sockaddr, _ = sockaddr_on_tcp_port ctx port in
   let dynamic = Tls.Config.Keystore.make f in
   let certificates = `Dynamic dynamic in
   let tls = Tls.Config.server ~certificates () in
-  Conduit_lwt_tls.Server.init' ?timeout ?stop tls sockaddr
+  Conduit_lwt_tls.Server.init' ?timeout ?stop ~on_exn tls sockaddr
     (fun addr fd ic oc -> callback (flow_of_fd fd addr) ic oc)
 
 let serve_with_default_tls ?timeout ?stop ~ctx ~certfile ~keyfile
@@ -379,7 +379,7 @@ let serve ?backlog ?timeout ?stop
                  pass, `Port port) ->
     serve_with_tls_native ?timeout ?stop ~ctx ~certfile ~keyfile
       ~pass ~port callback
-  | `TLS_dynamic (port, f) -> serve_with_tls_dynamic ?timeout ?stop ~ctx ~f ~port callback
+  | `TLS_dynamic (port, f) -> serve_with_tls_dynamic ?timeout ?stop ~on_exn ~ctx ~f ~port callback
   | `Vchan_direct _ -> Lwt.fail_with "Vchan_direct not implemented"
   | `Vchan_domain_socket _uuid ->
     Lwt.fail_with "Vchan_domain_socket not implemented"

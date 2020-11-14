@@ -46,6 +46,7 @@ module Server : sig
   val init'
     : ?backlog:int
     -> ?stop:(unit Lwt.t)
+    -> ?on_exn:(exn -> unit)
     -> ?timeout:int
     -> Tls.Config.server
     -> Lwt_unix.sockaddr
